@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -227,17 +228,31 @@ public class TIENDA implements Serializable{
     }
     }
     
-    public void listarPedidos(){
-        Collections.sort(pedidos);
-        for (Pedido p : pedidos) {
-            System.out.println(p);
-        }
-        System.out.println("\t");
-        Collections.reverse(pedidos);
-        for (Pedido p : pedidos) {
-            System.out.println(p);
-        }
+    private void listarPedidos() {
+        System.out.println("Listado de Pedidos:");
+       pedidos.stream().sorted(Comparator.comparing(p -> totalPedido(p))).forEach
+        (p -> System.out.println(p + "\t - IMPORTE TOTAL: " + totalPedido(p) + " Euro"));
     }
+    
+    public void listarPedidosPorTotal() {
+        pedidos.stream().forEach(System.out::println);
+        pedidos.stream().forEach(p -> System.out.println(p));
+        pedidos.stream().sorted().forEach(System.out::println);
+        articulos.values().stream().sorted().forEach(System.out::println);
+        
+    }
+    
+    public double totalPedido (Pedido p){
+        double total=0;
+                for (LineaPedido L: p.getCestaCompra()){
+                   
+               
+                   
+        total+=(articulos.get(L.getIdArticulo()).getPvp())
+                *L.getUnidades();
+    }      
+            return total;
+    } 
     
 //</editor-fold>
     
