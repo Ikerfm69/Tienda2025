@@ -3,6 +3,7 @@ package es.educastur.ikerfm.tienda;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -32,10 +33,10 @@ public class TIENDA implements Serializable{
         int opcion=0;
         do {
             System.out.println("\n\n\n\n\n\t\t\t\tMENU DE LA TIENDA\n");
-            System.out.println("1. PEDIDOS");
-            System.out.println("2. ARTÍCULOS");
-            System.out.println("3. CLIENTES");
-            System.out.println("9. SALIR");
+            System.out.println("\t\t\t\t1. PEDIDOS");
+            System.out.println("\t\t\t\t2. ARTÍCULOS");
+            System.out.println("\t\t\t\t3. CLIENTES");
+            System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
                 case 1: {
@@ -60,10 +61,10 @@ public class TIENDA implements Serializable{
         int opcion=0;
         do {
             System.out.println("\n\n\n\n\n\t\t\t\tMENU PEDIDOS\n");
-            System.out.println("1. NUEVO PEDIDO");
-            System.out.println("2. ");
-            System.out.println("3. ");
-            System.out.println("9. SALIR");
+            System.out.println("\t\t\t\t1. NUEVO PEDIDO");
+            System.out.println("\t\t\t\t2. LISTA PEDIDOS");
+            System.out.println("\t\t\t\t3. ");
+            System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
                 case 1: {
@@ -71,7 +72,7 @@ public class TIENDA implements Serializable{
                     break;
                 }
                 case 2: {
-                    
+                    listarPedidos();
                 }
                 case 3: {
                     
@@ -85,10 +86,10 @@ public class TIENDA implements Serializable{
         int opcion=0;
         do {
             System.out.println("\n\n\n\n\n\t\t\t\tMENU ARTICULOS\n");
-            System.out.println("1. ");
-            System.out.println("2. ");
-            System.out.println("3. ");
-            System.out.println("9. SALIR");
+            System.out.println("\t\t\t\t1. ");
+            System.out.println("\t\t\t\t2. ");
+            System.out.println("\t\t\t\t3. ");
+            System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
                 case 1: {
@@ -109,10 +110,10 @@ public class TIENDA implements Serializable{
         int opcion=0;
         do {
             System.out.println("\n\n\n\n\n\t\t\t\tMENU CLIENTES\n");
-            System.out.println("1. ");
-            System.out.println("2. ");
-            System.out.println("3. ");
-            System.out.println("9. SALIR");
+            System.out.println("\t\t\t\t1. ");
+            System.out.println("\t\t\t\t2. ");
+            System.out.println("\t\t\t\t3. ");
+            System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
                 case 1: {
@@ -225,6 +226,19 @@ public class TIENDA implements Serializable{
         }
     }
     }
+    
+    public void listarPedidos(){
+        Collections.sort(pedidos);
+        for (Pedido p : pedidos) {
+            System.out.println(p);
+        }
+        System.out.println("\t");
+        Collections.reverse(pedidos);
+        for (Pedido p : pedidos) {
+            System.out.println(p);
+        }
+    }
+    
 //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="ARTÍCULOS">
@@ -232,7 +246,33 @@ public class TIENDA implements Serializable{
 //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="CLIENTES">
-    
+    public void nuevoCliente(){
+        String  dni, nombre, email, telefono;
+        Scanner sc=new Scanner(System.in);
+        
+        System.out.println("Nuevo Contacto:");
+        //Entrada del Nombre del nuevo contacto - SIN VALIDACIÓN
+        System.out.println("Nombre:");
+        nombre=sc.nextLine();
+        //Entrada del TELEFONO del nuevo contacto - CON VALIDACIÓN MEDIANTE EXPRESIÓN REGULAR
+        do{
+            System.out.println("TELEFONO:");
+            telefono=sc.next();
+        }while(!telefono.matches("[6-7][0-9]{8}")); 
+        //Entrada del EMAIL del nuevo contacto - CON VALIDACIÓN MEDIANTE EXPRESIÓN REGULAR
+        do{
+            System.out.println("EMAIL:");
+            email=sc.next();
+        }while(!email.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")); 
+         //Entrada de LA FECHA de nacimiento del nuevo contacto - CON VALIDACIÓN MEDIANTE EXPRESIÓN REGULAR
+        do{
+            System.out.println("DNI: ");
+            //SI QUEREMOS USAR OTRO FORMATO DE FECHA DISTINTO (Dia-mes-año) hay que usar un DateTimeFormatter
+            dni = sc.next();
+        }while(MetodosAux.validarDNI(dni));      
+
+        
+    }
 //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="OTROS">
@@ -264,6 +304,30 @@ public class TIENDA implements Serializable{
         (List.of(new LineaPedido("4-33",3),new LineaPedido("2-11",3)))));
        pedidos.add(new Pedido("63921307Y-001/2024",clientes.get("63921307Y"),hoy.minusDays(4), new ArrayList<>
         (List.of(new LineaPedido("2-11",5),new LineaPedido("2-33",3),new LineaPedido("4-33",2)))));
+    }
+    
+    public void listArt(){
+        ArrayList<Articulo> articulosAux = new ArrayList(articulos.values());
+        
+        Collections.sort(articulosAux);
+        for (Articulo a : articulosAux) {
+            System.out.println(a);   
+        }
+        System.out.println();
+        Collections.reverse(articulosAux);
+        for (Articulo a : articulosAux) {
+            System.out.println(a);
+        }
+        System.out.println();
+        Collections.sort(articulosAux, new ComparaArticulosPorExistencias());
+        for (Articulo a : articulosAux) {
+            System.out.println(a);
+        }
+        System.out.println();
+        Collections.sort(articulosAux, new ComparaArticulosPorPrecio());
+        for (Articulo a : articulosAux) {
+            System.out.println(a);
+        }
     }
 //</editor-fold>
 }
