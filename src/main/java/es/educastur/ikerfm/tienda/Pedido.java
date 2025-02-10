@@ -1,10 +1,11 @@
 package es.educastur.ikerfm.tienda;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 
-public class Pedido {
+public class Pedido implements Comparable <Pedido>{
     private String idPedido;
     private Cliente clientePedido;
     private LocalDate fechaPedido;
@@ -52,6 +53,11 @@ public class Pedido {
     @Override
     public String toString() {
         return idPedido + "-" + clientePedido + "-" + fechaPedido + "-" + cestaCompra + '-';
+    }
+
+    @Override
+    public int compareTo(Pedido p) {
+        return this.getFechaPedido().compareTo(p.getFechaPedido());
     }
     
     

@@ -53,7 +53,7 @@ public class Articulo implements Comparable<Articulo>{
 
     @Override
     public int compareTo(Articulo a) {
-        return this.getIdArticulo().compareTo(a.getIdArticulo());
+        return Double.compare(this.pvp, a.getPvp());
     }
     
     
