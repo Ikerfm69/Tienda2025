@@ -48,7 +48,7 @@ public class Cliente implements Comparable<Cliente>{
 
     @Override
     public String toString() {
-        return dni + "-" + nombre + "-" + telefono + "-" + email + '-';
+        return "(" + dni + ")" + "-" + nombre + "-" + telefono + "-" + email;
     }
 
     @Override

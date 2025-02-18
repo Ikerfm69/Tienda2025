@@ -48,12 +48,12 @@ public class Articulo implements Comparable<Articulo>{
 
     @Override
     public String toString() {
-        return idArticulo + "-" + descripcion + "-" + existencias + "-" + pvp + '-';
+        return idArticulo + "-" + descripcion + "-" + existencias + "-" + pvp + "€";
     }
 
     @Override
     public int compareTo(Articulo a) {
-        return Double.compare(this.pvp, a.getPvp());
+        return this.idArticulo.compareTo(a.getIdArticulo());
     }
     
     
