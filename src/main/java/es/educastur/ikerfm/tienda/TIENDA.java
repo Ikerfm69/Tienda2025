@@ -35,7 +35,7 @@ public class TIENDA implements Serializable{
         do {
             System.out.println("\n\n\n\n\n\t\t\t\tMENU DE LA TIENDA\n");
             System.out.println("\t\t\t\t1. PEDIDOS");
-            System.out.println("\t\t\t\t2. ARTÍCULOS");
+            System.out.println("\t\t\t\t2. ARTICULOS");
             System.out.println("\t\t\t\t3. CLIENTES");
             System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
@@ -76,7 +76,7 @@ public class TIENDA implements Serializable{
                     listarPedidos();
                 }
                 case 3: {
-                    
+                    listarPedidosPorTotal();
                 }
             }
         } while (opcion != 9);
@@ -87,17 +87,17 @@ public class TIENDA implements Serializable{
         int opcion=0;
         do {
             System.out.println("\n\n\n\n\n\t\t\t\tMENU ARTICULOS\n");
-            System.out.println("\t\t\t\t1. ");
-            System.out.println("\t\t\t\t2. ");
+            System.out.println("\t\t\t\t1. ARTICULO NUEVO");
+            System.out.println("\t\t\t\t2. LISTADO ARTICULOS");
             System.out.println("\t\t\t\t3. ");
             System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
                 case 1: {
-                    
+                    nuevoArticulo();
                 }
                 case 2: {
-                    
+                    listaArticulos();
                 }
                 case 3: {
                     
@@ -111,17 +111,19 @@ public class TIENDA implements Serializable{
         int opcion=0;
         do {
             System.out.println("\n\n\n\n\n\t\t\t\tMENU CLIENTES\n");
-            System.out.println("\t\t\t\t1. ");
-            System.out.println("\t\t\t\t2. ");
+            System.out.println("\t\t\t\t1. NUEVO CLIENTE");
+            System.out.println("\t\t\t\t2. LISTADO CLIENTES");
             System.out.println("\t\t\t\t3. ");
             System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
                 case 1: {
-                    
+                    nuevoCliente();
+                    break;
                 }
                 case 2: {
-                    
+                    listaClientes();
+                    break;
                 }
                 case 3: {
                     
@@ -204,7 +206,7 @@ public class TIENDA implements Serializable{
                     }
                 }
             }
-            System.out.println("INTRODUCE CODGIO ARTICULO (RETURN PARA TERMINAR): ");
+            System.out.println("INTRODUCE CODIGO ARTICULO (RETURN PARA TERMINAR): ");
             idT = sc.nextLine();
         }
         
@@ -219,6 +221,7 @@ public class TIENDA implements Serializable{
         // ESCRIBO EL PEDIDO DEFINITIVAMENTE Y DESCUENTO LAS EXISTENCIAS PEDIDAS DE CADA ARTICULO
             LocalDate hoy=LocalDate.now();
             pedidos.add(new Pedido(generaIdPedido(dniT),clientes.get(dniT),hoy,CestaCompraAux));
+            
         }else{
             for (LineaPedido l:CestaCompraAux)
             {
@@ -230,34 +233,55 @@ public class TIENDA implements Serializable{
     
     private void listarPedidos() {
         System.out.println("Listado de Pedidos:");
-       pedidos.stream().sorted(Comparator.comparing(p -> totalPedido(p))).forEach
+        pedidos.stream().sorted(Comparator.comparing(p -> totalPedido(p))).forEach
         (p -> System.out.println(p + "\t - IMPORTE TOTAL: " + totalPedido(p) + " Euro"));
     }
     
     public void listarPedidosPorTotal() {
-        pedidos.stream().forEach(System.out::println);
+        //TODOS LOS PEDIDOS ORDENADOS POR IMPORTE DE MAYOR A MENOR PRECIO
+        pedidos.stream().sorted(Comparator.comparing(p -> totalPedido((Pedido) p)).reversed()).forEach
+        (p -> System.out.println(p + "\t - IMPORTE TOTAL:" + totalPedido(p)));
+        System.out.println("\n");
+        
+        //LOS PEDIDOS DE UN USUARIO/A (POR TECLADO) ORDENADOS POR IMPORTE DE MAYOR A MENOR PRECIO
+        System.out.println("Teclea NOMBRE CLIENTE:");
+        String nombre = sc.next().toUpperCase();
+        pedidos.stream().filter(p -> p.getClientePedido().getNombre().equals(nombre))
+                .filter(p -> totalPedido(p)>500).sorted(Comparator.comparing(p -> totalPedido((Pedido) p)).reversed())
+                .forEach(p -> System.out.println(p + "\t - IMPORTE TOTAL:" + totalPedido(p)));
+        System.out.println("\n");
+        
+        //ARTICULOS DE UNA SECCIÓN EN CONCRETO (POR TECLADO) ORDENADOS DE MENOR A MAYOR PVP
+        System.out.println("Teclea SECCION:");
+        char s = sc.next().charAt(0);
+        articulos.values().stream().filter(a -> a.getIdArticulo().charAt(0)==s)
+                .sorted(new ComparaArticulosPorPrecio().reversed()).forEach(System.out::println);
+        
+        /*pedidos.stream().forEach(System.out::println);
         pedidos.stream().forEach(p -> System.out.println(p));
         pedidos.stream().sorted().forEach(System.out::println);
-        articulos.values().stream().sorted().forEach(System.out::println);
-        
+        articulos.values().stream().sorted().forEach(System.out::println);*/
     }
     
     public double totalPedido (Pedido p){
         double total=0;
-                for (LineaPedido L: p.getCestaCompra()){
-                   
-               
-                   
-        total+=(articulos.get(L.getIdArticulo()).getPvp())
-                *L.getUnidades();
-    }      
+            for (LineaPedido L: p.getCestaCompra()){      
+                total+=(articulos.get(L.getIdArticulo()).getPvp())*L.getUnidades();
+            }      
             return total;
     } 
     
 //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="ARTÍCULOS">
-    
+    private void nuevoArticulo() {
+        
+    }
+
+    private void listaArticulos() {
+        System.out.println("LISTADO DE TODOS LOS ARTICULOS");
+        articulos.values().stream().sorted().forEach(System.out::println);
+    }
 //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="CLIENTES">
@@ -266,15 +290,15 @@ public class TIENDA implements Serializable{
         Scanner sc=new Scanner(System.in);
         
         System.out.println("Nuevo Contacto:");
-        //Entrada del Nombre del nuevo contacto - SIN VALIDACIÓN
+        
         System.out.println("Nombre:");
-        nombre=sc.nextLine();
-        //Entrada del TELEFONO del nuevo contacto - CON VALIDACIÓN MEDIANTE EXPRESIÓN REGULAR
+        nombre=sc.next();
+        
         do{
             System.out.println("TELEFONO:");
             telefono=sc.next();
         }while(!telefono.matches("[6-7][0-9]{8}")); 
-        //Entrada del EMAIL del nuevo contacto - CON VALIDACIÓN MEDIANTE EXPRESIÓN REGULAR
+        
         do{
             System.out.println("EMAIL:");
             email=sc.next();
@@ -282,11 +306,15 @@ public class TIENDA implements Serializable{
          //Entrada de LA FECHA de nacimiento del nuevo contacto - CON VALIDACIÓN MEDIANTE EXPRESIÓN REGULAR
         do{
             System.out.println("DNI: ");
-            //SI QUEREMOS USAR OTRO FORMATO DE FECHA DISTINTO (Dia-mes-año) hay que usar un DateTimeFormatter
             dni = sc.next();
-        }while(MetodosAux.validarDNI(dni));      
-
+        }while(MetodosAux.validarDNI(dni));
         
+        clientes.values().add(new Cliente(dni, nombre, email, telefono));
+    }
+    
+    public void listaClientes(){
+        System.out.println("LISTADO DE TODOS LOS CLIENTES:");
+        clientes.values().stream().sorted().forEach(System.out::println);
     }
 //</editor-fold>
     
@@ -321,10 +349,10 @@ public class TIENDA implements Serializable{
         (List.of(new LineaPedido("2-11",5),new LineaPedido("2-33",3),new LineaPedido("4-33",2)))));
     }
     
-    public void listArt(){
-        ArrayList<Articulo> articulosAux = new ArrayList(articulos.values());
+    public void Ejemplos(){
+        ArrayList <Articulo> articulosAux = new ArrayList (articulos.values());
         
-        Collections.sort(articulosAux);
+        //Collections.sort(articulosAux);
         for (Articulo a : articulosAux) {
             System.out.println(a);   
         }
@@ -338,11 +366,23 @@ public class TIENDA implements Serializable{
         for (Articulo a : articulosAux) {
             System.out.println(a);
         }
-        System.out.println();
-        Collections.sort(articulosAux, new ComparaArticulosPorPrecio());
-        for (Articulo a : articulosAux) {
-            System.out.println(a);
-        }
+        
+        /*Collections.sort(articulos);
+        articulosAux.forEach(System.out::println);
+        Collections.reverse(articulos);
+        articulosAux.forEach(System.out::println);
+        
+        Collections.sort(articulos, new ComparaArticulosPorPrecio());
+        articulosAux.forEach(System.out::println); 
+        Collections.reverse(articulos);
+        articulosAux.forEach(System.out::println);
+        
+        Collections.sort(articulos, new ComparaArticulosPorExistencias());
+        articulosAux.forEach(System.out::println); 
+        Collections.reverse(articulos);
+        articulosAux.forEach(System.out::println);*/
+
     }
 //</editor-fold>
+
 }
