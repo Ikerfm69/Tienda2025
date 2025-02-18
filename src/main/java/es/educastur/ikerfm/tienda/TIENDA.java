@@ -275,7 +275,28 @@ public class TIENDA implements Serializable{
     
     //<editor-fold defaultstate="collapsed" desc="ARTÍCULOS">
     private void nuevoArticulo() {
+        String  idArticulo, descripcion;
+        int existencias;
+        double pvp;
+        Scanner sc=new Scanner(System.in);
         
+        System.out.println("Nuevo Articulo:");
+        
+        do{
+            System.out.println("Teclea el IdArticulo(Primer Digito es la Seccion):");
+            idArticulo=sc.next();
+        }while(!idArticulo.matches("[1-4]-[0-9]{2}"));
+        
+        System.out.println("Descripción:");
+        descripcion=sc.next(); 
+        
+        System.out.println("Existencias:");
+        existencias=sc.nextInt();
+
+        System.out.println("PVP: ");
+        pvp = sc.nextDouble();
+        
+        articulos.values().add(new Articulo(idArticulo, descripcion, existencias, pvp));
     }
 
     private void listaArticulos() {
