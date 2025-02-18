@@ -33,7 +33,7 @@ public class MetodosAux {
         }
     }
 
-    public boolean esDouble(String s){
+    public static boolean esDouble(String s){
         double n;
         try{
             n=Double.parseDouble(s);
