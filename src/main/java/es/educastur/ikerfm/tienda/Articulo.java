@@ -1,7 +1,9 @@
 package es.educastur.ikerfm.tienda;
 
+import java.io.Serializable;
 
-public class Articulo implements Comparable<Articulo>{
+
+public class Articulo implements Comparable<Articulo>, Serializable{
     private String idArticulo;
     private String descripcion;
     private int existencias;

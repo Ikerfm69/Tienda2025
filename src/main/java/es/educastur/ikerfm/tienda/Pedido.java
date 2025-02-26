@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 
-public class Pedido implements Comparable <Pedido>{
+public class Pedido implements Comparable <Pedido>, Serializable{
     private String idPedido;
     private Cliente clientePedido;
     private LocalDate fechaPedido;
@@ -57,7 +57,7 @@ public class Pedido implements Comparable <Pedido>{
 
     @Override
     public int compareTo(Pedido p) {
-        return this.getFechaPedido().compareTo(p.getFechaPedido());
+        return this.getIdPedido().compareTo(p.getIdPedido());
     }
     
     

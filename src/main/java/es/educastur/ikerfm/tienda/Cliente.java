@@ -1,7 +1,9 @@
 package es.educastur.ikerfm.tienda;
 
+import java.io.Serializable;
 
-public class Cliente implements Comparable<Cliente>{
+
+public class Cliente implements Comparable<Cliente>, Serializable{
     private String dni;
     private String nombre;
     private String telefono;
