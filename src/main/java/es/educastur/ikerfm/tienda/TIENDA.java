@@ -1,5 +1,15 @@
 package es.educastur.ikerfm.tienda;
 
+import java.io.BufferedWriter;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,14 +32,28 @@ public class TIENDA implements Serializable{
         this.clientes = new HashMap<>();
     }
 
+    public HashMap<String, Articulo> getArticulos() {
+        return articulos;
+    }
+
+    public HashMap<String, Cliente> getClientes() {
+        return clientes;
+    }
+
+    public ArrayList<Pedido> getPedidos() {
+        return pedidos;
+    }
+
     public static void main(String[] args) {
         TIENDA t = new TIENDA();
-        t.cargaDatos();
+        //t.cargaDatos();
+        t.leerArchivos();
         t.menu();
+        t.backup();
     }
     
     //<editor-fold defaultstate="collapsed" desc="MENUS">
-    public void menu(){
+    public void menu() {
         Scanner sc= new Scanner(System.in);
         int opcion=0;
         do {
@@ -64,7 +88,9 @@ public class TIENDA implements Serializable{
             System.out.println("\n\n\n\n\n\t\t\t\tMENU PEDIDOS\n");
             System.out.println("\t\t\t\t1. NUEVO PEDIDO");
             System.out.println("\t\t\t\t2. LISTA PEDIDOS");
-            System.out.println("\t\t\t\t3. ");
+            System.out.println("\t\t\t\t3. LISTAR PEDIDOS POR IMPORTE TOTAL");
+            System.out.println("\t\t\t\t4. LISTAR PEDIDOS POR FECHA");
+            System.out.println("\t\t\t\t5. LISTAR PEDIDOS POR IMPORTE DETERMINADO");
             System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
@@ -74,9 +100,19 @@ public class TIENDA implements Serializable{
                 }
                 case 2: {
                     listarPedidos();
+                    break;
                 }
                 case 3: {
                     listarPedidosPorTotal();
+                    break;
+                }
+                case 4: {
+                    listarPedidosPorFecha();
+                    break;
+                }
+                case 5: {
+                    listarPedidosPorImporte();
+                    break;
                 }
             }
         } while (opcion != 9);
@@ -89,18 +125,36 @@ public class TIENDA implements Serializable{
             System.out.println("\n\n\n\n\n\t\t\t\tMENU ARTICULOS\n");
             System.out.println("\t\t\t\t1. ARTICULO NUEVO");
             System.out.println("\t\t\t\t2. LISTADO ARTICULOS");
-            System.out.println("\t\t\t\t3. ");
+            System.out.println("\t\t\t\t3. LISTADO ARTICULOS POR SECCION");
+            System.out.println("\t\t\t\t4. REPONER ARTICULOS");
+            System.out.println("\t\t\t\t5. LISTADO ARTICULOS POR SECCION (Prueba clase con leerArchivos)");
+            System.out.println("\t\t\t\t6. BACKUP POR SECCIONES");
             System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
                 case 1: {
                     nuevoArticulo();
+                    break;
                 }
                 case 2: {
                     listaArticulos();
+                    break;
                 }
                 case 3: {
-                    
+                    listaArticulosPorSec();
+                    break;
+                }
+                case 4: {
+                    reponerArticulos();
+                    break;
+                }
+                case 5: {
+                    leerArchivosSeccion();
+                    break;
+                }
+                case 6: {
+                    backupPorSeccion();
+                    break;
                 }
             }
         } while (opcion != 9);
@@ -113,7 +167,10 @@ public class TIENDA implements Serializable{
             System.out.println("\n\n\n\n\n\t\t\t\tMENU CLIENTES\n");
             System.out.println("\t\t\t\t1. NUEVO CLIENTE");
             System.out.println("\t\t\t\t2. LISTADO CLIENTES");
-            System.out.println("\t\t\t\t3. ");
+            System.out.println("\t\t\t\t3. MODIFICAR CLIENTE");
+            System.out.println("\t\t\t\t4. BORRAR CLIENTE");
+            System.out.println("\t\t\t\t5. BACKUP CLIENTE");
+            System.out.println("\t\t\t\t6. LEER CLIENTE");
             System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
@@ -126,7 +183,20 @@ public class TIENDA implements Serializable{
                     break;
                 }
                 case 3: {
-                    
+                    modificarCliente();
+                    break;
+                }
+                case 4: {
+                    borrarCliente();
+                    break;
+                }
+                case 5: {
+                    clientesTxtBackup();
+                    break;
+                }
+                case 6: {
+                    clientesTxtLeer();
+                    break;
                 }
             }
         } while (opcion != 9);
@@ -232,7 +302,7 @@ public class TIENDA implements Serializable{
     }
     
     private void listarPedidos() {
-        System.out.println("Listado de Pedidos:");
+        System.out.println("Listado de Pedidos (Ordenados por importe Total):");
         pedidos.stream().sorted(Comparator.comparing(p -> totalPedido(p))).forEach
         (p -> System.out.println(p + "\t - IMPORTE TOTAL: " + totalPedido(p) + " Euro"));
     }
@@ -261,6 +331,19 @@ public class TIENDA implements Serializable{
         pedidos.stream().forEach(p -> System.out.println(p));
         pedidos.stream().sorted().forEach(System.out::println);
         articulos.values().stream().sorted().forEach(System.out::println);*/
+    }
+    
+    private void listarPedidosPorFecha() {
+        System.out.println("Listado de Pedidos (Ordenados por FECHA):");
+        pedidos.stream().sorted(Comparator.comparing(p -> p.getFechaPedido())).forEach
+        (p -> System.out.println(p + "\t - IMPORTE TOTAL: " + totalPedido(p) + " Euro"));
+    }
+
+    private void listarPedidosPorImporte() {
+        System.out.println("TECLEA IMPORTE MÍNIMO DE PEDIDO:");
+        int i = sc.nextInt();
+        System.out.println("LOS SIGUIENTES PEDIDOS SUPERAN LOS : " + i + "€");
+        pedidos.stream().filter(p -> totalPedido(p) > i).forEach(p -> System.out.println(p + "\t - IMPORTE TOTAL: " + totalPedido(p) + " Euro"));
     }
     
     public double totalPedido (Pedido p){
@@ -303,6 +386,144 @@ public class TIENDA implements Serializable{
         System.out.println("LISTADO DE TODOS LOS ARTICULOS");
         articulos.values().stream().sorted().forEach(System.out::println);
     }
+    
+    private void listaArticulosPorSec() {
+        String opcion;
+        
+        do{
+            System.out.println("\n\n\n\n\n\t\t\t\tELIJA SECCION PARA VER ARTICULOS (RETURN PARA REGRESAR):\n");
+            System.out.println("\t\t\t\t1 - PERIFERICOS");
+            System.out.println("\t\t\t\t2 - ALMACENAMIENTO");
+            System.out.println("\t\t\t\t3 - IMPRESORAS");
+            System.out.println("\t\t\t\t4 - MONITORES");
+            System.out.println("\t\t\t\t5 - TODAS");
+            opcion=sc.next();
+            if (opcion.isBlank() || !opcion.matches("[1-5]")) break;
+            lista(opcion);
+        }while(opcion.matches("[1-5]"));
+    }
+    
+    public void lista (String seccion){
+            
+        String[] secciones={"","PERIFERICOS","ALMACENAMIENTO","IMPRESORAS","MONITORES","TODAS"};
+        
+        System.out.println("ARTICULOS DE LA SECCION: "+ secciones[Integer.parseInt(seccion)]);
+        if (seccion.equals("5")){
+            //Listamos todos los artículos ordenados por PRECIO
+            articulos.values().stream().sorted().forEach(System.out::println);
+        }else{
+            //Listamos los artículos de la sección indicada ordenados por PRECIO
+            articulos.values().stream().filter(a -> a.getIdArticulo().startsWith(seccion))
+                          .sorted().forEach(System.out::println);
+        }
+    }
+    
+    private void leerArchivosSeccion() {
+        System.out.println("Elige la seccion de la que quieres mostrar los articulos: ([1-4])");
+        String seccion = sc.next();
+        
+        ArrayList <Articulo> articulosAux = new ArrayList();
+        Articulo a;
+        
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"))) {
+            while ( (a=(Articulo)oisArticulos.readObject()) != null){
+                if (seccion.equals("5")) {
+                    articulosAux.add(a);
+                }
+                if (a.getIdArticulo().startsWith(seccion)) {
+                    articulosAux.add(a);
+                }
+            }
+        } catch (FileNotFoundException e){
+            System.out.println(e.toString());
+        } catch (EOFException e) {
+            
+        } catch (ClassNotFoundException | IOException e){
+            System.out.println(e.toString());
+        }
+        articulosAux.forEach(System.out::println);
+    }
+    
+   private void backupPorSeccion() {
+        try (ObjectOutputStream oosPerifericos = new ObjectOutputStream(new FileOutputStream("perifericos.dat"));
+            ObjectOutputStream oosAlamcenamiento = new ObjectOutputStream(new FileOutputStream("almacenamiento.dat"));
+            ObjectOutputStream oosImpresoras = new ObjectOutputStream(new FileOutputStream("impresoras.dat"));    
+            ObjectOutputStream oosMonitores = new ObjectOutputStream (new FileOutputStream("monitores.dat"))) {
+	   	   
+            for (Articulo a : articulos.values()) {
+                char seccion = a.getIdArticulo().charAt(0);
+                switch (seccion){
+                    case '1':
+                        oosPerifericos.writeObject(a);
+                        break;
+                    case '2':
+                        oosAlamcenamiento.writeObject(a);
+                        break;
+                    case '3':
+                        oosImpresoras.writeObject(a);
+                        break;
+                    case '4':
+                        oosMonitores.writeObject(a);
+                        break;    
+                }
+                
+                
+                /*String id = a.getIdArticulo();
+                if (id.startsWith("1")) {
+                    oosPerifericos.writeObject(a);
+                } else if (id.startsWith("2")) {
+                    oosAlamcenamiento.writeObject(a);
+                } else if (id.startsWith("3")) {
+                    oosImpresoras.writeObject(a);
+                } else if (id.startsWith("4")) {
+                    oosMonitores.writeObject(a);
+                }*/
+            }
+            System.out.println("Copia de seguridad realizada con éxito.");
+	    
+        } catch (FileNotFoundException e) {
+                 System.out.println(e.toString());                                                          
+        } catch (IOException e) {
+                 System.out.println(e.toString());
+        }
+        
+        System.out.println("Teclea la Seccion de los articulos CUYO ARCHIVO QUIERES COMPROBAR:");        
+        char seccion=sc.next().charAt(0);
+        String nombreArchivo=null;
+        switch (seccion) {
+                    case '1':
+                        nombreArchivo="Perifericos.dat";
+                        break;
+                    case '2':
+                        nombreArchivo="Almacenamiento.dat";
+                        break;
+                    case '3':
+                        nombreArchivo="Impresoras.dat";
+                        break;
+                    case '4':
+                        nombreArchivo="Monitores.dat";
+                        break;
+        }
+        Articulo a;
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream(nombreArchivo))){
+            while ( (a=(Articulo)oisArticulos.readObject()) != null){
+                System.out.println(a);
+            } 
+        } catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (EOFException e){
+            
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        } 
+    }
+   
+   private void reponerArticulos() {
+        articulos.values().stream().filter(c -> c.getExistencias() == 0).forEach(System.out::println);
+        System.out.println("Teclea el ID del articulo el cual deseas reponer sus existencias");
+    }
+   
+    
 //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="CLIENTES">
@@ -328,7 +549,7 @@ public class TIENDA implements Serializable{
         do{
             System.out.println("DNI: ");
             dni = sc.next();
-        }while(MetodosAux.validarDNI(dni));
+        }while(!MetodosAux.validarDNI(dni));
         
         clientes.values().add(new Cliente(dni, nombre, email, telefono));
     }
@@ -337,6 +558,72 @@ public class TIENDA implements Serializable{
         System.out.println("LISTADO DE TODOS LOS CLIENTES:");
         clientes.values().stream().sorted().forEach(System.out::println);
     }
+    
+    private void borrarCliente() {
+        solicitaDni();
+        if(MetodosAux.validarDNI(solicitaDni())){
+            clientes.values().stream().filter(c -> c.getDni().equals(solicitaDni())).forEach(c -> clientes.remove(c));
+        }else{
+            System.out.println("No es ningun DNI de la tienda");
+        }
+    }
+    
+    private void modificarCliente() {
+        Scanner sc= new Scanner(System.in);
+        int opcion=0;
+        do {
+            System.out.println("\n\n\n\n\n\t\t\t\t¿QUÉ DESEA MODIFICAR?\n");
+            System.out.println("\t\t\t\t1. TELEFONO");
+            System.out.println("\t\t\t\t2. EMAIL");
+            System.out.println("\t\t\t\t9. SALIR");
+            opcion = sc.nextInt();
+            switch (opcion) {
+                case 1: {
+                    modificaTelefono();
+                    break;
+                }
+                case 2: {
+                    modificaEmail();
+                    break;
+                }
+            }
+        } while (opcion != 9);
+    }
+    
+    private void modificaTelefono() {
+        
+    }
+
+    private void modificaEmail() {
+        
+    }
+    
+    private void clientesTxtBackup() {
+        try (BufferedWriter bfwClientes = new BufferedWriter(new FileWriter("clientes.csv"))){
+            for (Cliente c : clientes.values()) {
+                bfwClientes.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println(e.toString());
+        }catch (IOException  e){
+            System.out.println(e.toString());
+        }
+    }
+
+    private void clientesTxtLeer() {
+        HashMap <String, Cliente> clientesAux = new HashMap();
+        try (Scanner scClientes = new Scanner(new File("clientes.csv"))){
+            while (scClientes.hasNextLine()) {
+                String [] atributos = scClientes.nextLine().split("[,]");
+                Cliente c = new Cliente (atributos[0], atributos[1], atributos[2], atributos[3]);
+                clientesAux.put(atributos[0], c);
+            }
+        } catch (IOException e) {
+            System.out.println(e.toString());
+        }
+        clientesAux.values().forEach(System.out::println);
+    }
+    
 //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="OTROS">
@@ -358,16 +645,17 @@ public class TIENDA implements Serializable{
        articulos.put("4-33",new Articulo("4-33","SAMSUNG ODISSEY G5",12,580));
        
        LocalDate hoy = LocalDate.now();
-       pedidos.add(new Pedido("80580845T-001/2024",clientes.get("80580845T"),hoy.minusDays(1), new ArrayList<>
-        (List.of(new LineaPedido("1-11",3),new LineaPedido("4-22",3)))));                                                                                                                                                               
-       pedidos.add(new Pedido("80580845T-002/2024",clientes.get("80580845T"),hoy.minusDays(2), new ArrayList<>
-        (List.of(new LineaPedido("4-11",3),new LineaPedido("4-22",2),new LineaPedido("4-33",4)))));
-       pedidos.add(new Pedido("36347775R-001/2024",clientes.get("36347775R"),hoy.minusDays(3), new ArrayList<>
-        (List.of(new LineaPedido("4-22",1),new LineaPedido("2-22",3)))));
-       pedidos.add(new Pedido("36347775R-002/2024",clientes.get("36347775R"),hoy.minusDays(5), new ArrayList<>
-        (List.of(new LineaPedido("4-33",3),new LineaPedido("2-11",3)))));
        pedidos.add(new Pedido("63921307Y-001/2024",clientes.get("63921307Y"),hoy.minusDays(4), new ArrayList<>
         (List.of(new LineaPedido("2-11",5),new LineaPedido("2-33",3),new LineaPedido("4-33",2)))));
+       pedidos.add(new Pedido("80580845T-001/2024",clientes.get("80580845T"),hoy.minusDays(1), new ArrayList<>
+        (List.of(new LineaPedido("1-11",3),new LineaPedido("4-22",3)))));
+       pedidos.add(new Pedido("36347775R-001/2024",clientes.get("36347775R"),hoy.minusDays(3), new ArrayList<>
+        (List.of(new LineaPedido("4-22",1),new LineaPedido("2-22",3)))));
+       pedidos.add(new Pedido("80580845T-002/2024",clientes.get("80580845T"),hoy.minusDays(2), new ArrayList<>
+        (List.of(new LineaPedido("4-11",3),new LineaPedido("4-22",2),new LineaPedido("4-33",4)))));
+       pedidos.add(new Pedido("36347775R-002/2024",clientes.get("36347775R"),hoy.minusDays(5), new ArrayList<>
+        (List.of(new LineaPedido("4-33",3),new LineaPedido("2-11",3)))));
+       
     }
     
     public void Ejemplos(){
@@ -402,8 +690,136 @@ public class TIENDA implements Serializable{
         articulosAux.forEach(System.out::println); 
         Collections.reverse(articulos);
         articulosAux.forEach(System.out::println);*/
+        
+        }
+        
+        public String solicitaDni(){
+        Scanner sc=new Scanner(System.in);
+        System.out.println("Teclea el DNI del usuario:");
+        String dni=sc.next();
+        return dni;
+        }
+        
+        public int buscaDni(String dni){
+        int pos=-1;
+        for (int i = 0; i < clientes.size(); i++) {
+            if (clientes.get(i).getDni().equals(dni)){
+                pos=i;
+                break;
+            }
+        }
+        return pos;       
+        }
 
+    public void backup() {
+        try (ObjectOutputStream oosArticulos = new ObjectOutputStream(new FileOutputStream("articulos.dat"));
+            ObjectOutputStream oosClientes = new ObjectOutputStream(new FileOutputStream("clientes.dat"));
+            ObjectOutputStream oosPedidos = new ObjectOutputStream (new FileOutputStream("pedidos.dat"))) {
+	   	   
+            for (Articulo a : articulos.values()) {
+                oosArticulos.writeObject(a);
+            }
+            for (Cliente c:clientes.values()) {
+                oosClientes.writeObject(c);
+            }
+            for (Pedido p:pedidos){
+                 oosPedidos.writeObject(p);
+            }
+            System.out.println("Copia de seguridad realizada con éxito.");
+	    
+        } catch (FileNotFoundException e) {
+                 System.out.println(e.toString());                                                          
+        } catch (IOException e) {
+                 System.out.println(e.toString());
+        }
+        
+        /*try (ObjectOutputStream oosArticulos = new ObjectOutputStream(new FileOutputStream("articulos.dat"));
+            ObjectOutputStream oosClientes = new ObjectOutputStream(new FileOutputStream("clientes.dat"));
+            ObjectOutputStream oosPedidos = new ObjectOutputStream (new FileOutputStream("pedidos.dat"))) {
+	   	   
+            //COLECCIONES COMPLETAS
+            oosArticulos.writeObject(articulos);
+            oosClientes.writeObject(clientes);
+            //LOS PEDIDOS SE GUARDAN OBJETO A OBJETO    
+            for (Pedido p:pedidos){
+                 oosPedidos.writeObject(p);
+            }
+            
+            System.out.println("Copia de seguridad realizada con éxito.");
+	    
+        } catch (FileNotFoundException e) {
+                 System.out.println(e.toString());                                                          
+        } catch (IOException e) {
+                 System.out.println(e.toString());
+        }*/
     }
+
+    public void leerArchivos() {
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"))){
+            Articulo a;
+            while ( (a=(Articulo)oisArticulos.readObject()) != null){
+                 articulos.put(a.getIdArticulo(), a);
+            } 
+	} catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (EOFException e){
+            
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        } 
+        
+        try (ObjectInputStream oisClientes = new ObjectInputStream(new FileInputStream("clientes.dat"))){
+            Cliente c;
+            while ( (c=(Cliente)oisClientes.readObject()) != null){
+                 clientes.put(c.getDni(), c);
+            } 
+	} catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (EOFException e){
+            
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        }
+        
+        
+        try (ObjectInputStream oisPedidos = new ObjectInputStream(new FileInputStream("pedidos.dat"))){
+            Pedido p;
+            while ( (p=(Pedido)oisPedidos.readObject()) != null){
+                 pedidos.add(p);
+            } 
+        } catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (EOFException e){
+            
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        }
+        
+        /*try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"));
+             ObjectInputStream oisClientes = new ObjectInputStream(new FileInputStream("clientes.dat"));
+             ObjectInputStream oisPedidos = new ObjectInputStream(new FileInputStream("pedidos.dat"))){
+            
+            articulos = (HashMap<String,Articulo>) oisArticulos.readObject();
+            clientes = (HashMap<String,Cliente>) oisClientes.readObject();
+            
+            //LOS PEDIDOS SE IMPORTAN OBJETO A OBJETO
+            Pedido p=null;
+            while ( (p=(Pedido)oisPedidos.readObject()) != null){
+                 pedidos.add(p);
+            } 
+            System.out.println("Colecciones importadas con éxito.");
+            
+	} catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (EOFException e){
+            
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        }*/
+    }
+    
+       
+    
 //</editor-fold>
 
 }
