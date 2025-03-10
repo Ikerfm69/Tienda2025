@@ -129,6 +129,7 @@ public class TIENDA implements Serializable{
             System.out.println("\t\t\t\t4. REPONER ARTICULOS");
             System.out.println("\t\t\t\t5. LISTADO ARTICULOS POR SECCION (Prueba clase con leerArchivos)");
             System.out.println("\t\t\t\t6. BACKUP POR SECCIONES");
+            System.out.println("\t\t\t\t7. BACKUP TXT");
             System.out.println("\t\t\t\t9. SALIR");
             opcion = sc.nextInt();
             switch (opcion) {
@@ -154,6 +155,10 @@ public class TIENDA implements Serializable{
                 }
                 case 6: {
                     backupPorSeccion();
+                    break;
+                }
+                case 7: {
+                    articulosTxtBackup();
                     break;
                 }
             }
@@ -382,6 +387,7 @@ public class TIENDA implements Serializable{
         articulos.values().add(new Articulo(idArticulo, descripcion, existencias, pvp));
     }
 
+    
     private void listaArticulos() {
         System.out.println("LISTADO DE TODOS LOS ARTICULOS");
         articulos.values().stream().sorted().forEach(System.out::println);
@@ -444,7 +450,7 @@ public class TIENDA implements Serializable{
         articulosAux.forEach(System.out::println);
     }
     
-   private void backupPorSeccion() {
+    private void backupPorSeccion() {
         try (ObjectOutputStream oosPerifericos = new ObjectOutputStream(new FileOutputStream("perifericos.dat"));
             ObjectOutputStream oosAlamcenamiento = new ObjectOutputStream(new FileOutputStream("almacenamiento.dat"));
             ObjectOutputStream oosImpresoras = new ObjectOutputStream(new FileOutputStream("impresoras.dat"));    
@@ -518,9 +524,18 @@ public class TIENDA implements Serializable{
         } 
     }
    
-   private void reponerArticulos() {
-        articulos.values().stream().filter(c -> c.getExistencias() == 0).forEach(System.out::println);
-        System.out.println("Teclea el ID del articulo el cual deseas reponer sus existencias");
+    private void reponerArticulos() {
+        String id;
+        int unidades;
+        
+        articulos.values().stream().filter(a -> a.getExistencias() == 0).forEach(System.out::println);
+        System.out.println("Teclea el ID del articulo el cual deseas reponer sus existencias:");
+        id = sc.next();
+        articulos.values().stream().filter(a -> a.getIdArticulo().equalsIgnoreCase(id)).forEach(a -> System.out.println("El articulo seleccionado es: " + a.getDescripcion()));
+        System.out.println("Teclea el numero de unidades que desea añadir:");
+        unidades = sc.nextInt();
+        articulos.values().stream().filter(a -> a.getIdArticulo().equalsIgnoreCase(id)).forEach(a -> a.setExistencias(unidades + a.getExistencias()));
+        System.out.println("Unidades añadidas");
     }
    
     
@@ -565,6 +580,18 @@ public class TIENDA implements Serializable{
             clientes.values().stream().filter(c -> c.getDni().equals(solicitaDni())).forEach(c -> clientes.remove(c));
         }else{
             System.out.println("No es ningun DNI de la tienda");
+        }
+    }
+    
+    private void articulosTxtBackup() {
+        try (BufferedWriter bfwArticulos = new BufferedWriter(new FileWriter("articulos.csv"))){
+            for (Articulo a : articulos.values()) {
+                bfwArticulos.write(a.getIdArticulo() + "," + a.getDescripcion() + "," + a.getExistencias() + "," + a.getPvp() + "\n");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println(e.toString());
+        }catch (IOException  e){
+            System.out.println(e.toString());
         }
     }
     
@@ -723,7 +750,7 @@ public class TIENDA implements Serializable{
                 oosClientes.writeObject(c);
             }
             for (Pedido p:pedidos){
-                 oosPedidos.writeObject(p);
+                oosPedidos.writeObject(p);
             }
             System.out.println("Copia de seguridad realizada con éxito.");
 	    
