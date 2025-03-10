@@ -8,8 +8,7 @@ public class Articulo implements Comparable<Articulo>, Serializable{
     private String descripcion;
     private int existencias;
     private double pvp;
-    
-    public Articulo (String idArticulo, String descipcion, int existencias, double pvp){
+    public Articulo (String idArticulo, String descripcion, int existencias, double pvp){
         this.idArticulo = idArticulo;
         this.descripcion = descripcion;
         this.existencias = existencias;
@@ -50,13 +49,12 @@ public class Articulo implements Comparable<Articulo>, Serializable{
 
     @Override
     public String toString() {
-        return idArticulo + "-" + descripcion + "-" + existencias + "-" + pvp + "€";
+        return "(" + idArticulo + ")" + "-" + descripcion + "-" + existencias + "-" + pvp;
     }
 
     @Override
     public int compareTo(Articulo a) {
-        return this.idArticulo.compareTo(a.getIdArticulo());
+        return this.getIdArticulo().compareTo(a.getIdArticulo());
     }
-    
     
 }
