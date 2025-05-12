@@ -9,7 +9,7 @@ public class Articulo implements Comparable<Articulo>, Serializable{
     private int existencias;
     private double pvp;
     
-    public Articulo (String idArticulo, String descipcion, int existencias, double pvp){
+    public Articulo (String idArticulo, String descripcion, int existencias, double pvp){
         this.idArticulo = idArticulo;
         this.descripcion = descripcion;
         this.existencias = existencias;
