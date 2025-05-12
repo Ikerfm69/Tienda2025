@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
 package es.educastur.ikerfm.tienda;
 
 import org.junit.jupiter.api.AfterEach;
@@ -36,41 +32,45 @@ public class MetodosAuxTest {
     public void tearDown() {
     }
 
-    /**
-     * Test of validarDNI method, of class MetodosAux.
-     */
-    @Test
-    public void testValidarDNI() {
-        System.out.println("Test para el método validarDni");
-    }
 
-    /**
-     * Test of calcularLetraDNI method, of class MetodosAux.
-     */
-    @Test
-    public void testCalcularLetraDNI() {
-        System.out.println("Test para el método calcularLetraDni");
-    }
-
-    /**
-     * Test of esInt method, of class MetodosAux.
-     */
+    
     @Test
     public void testEsInt() {
-        System.out.println("Test para el método esInt");
-        assertTrue(true);
-        assertTrue(MetodosAux.esInt("-5"), "El -5 es int");
-        assertTrue(MetodosAux.esInt("5"), "El 5 es int");
-        assertFalse(MetodosAux.esInt("5.5"), "El 5.5 no es int");
-        assertFalse(MetodosAux.esInt("xty"), "El xty no es int");
+        
+        assertAll(
+            () -> assertTrue(MetodosAux.esInt("8"),"El 8 es int"),
+            () -> assertTrue(MetodosAux.esInt("46"),"El 46 es int"),
+            () -> assertTrue(MetodosAux.esInt("55"),"El 55 es int"),
+            () -> assertFalse(MetodosAux.esInt("8.8"),"8.8 NO es int"),
+            () -> assertFalse(MetodosAux.esInt("-55.5"),"-55.5 NO es int"),
+            () -> assertFalse(MetodosAux.esInt("HOLA"),"HOLA NO es int")  
+        );
+        
+      
     }
 
-    /**
-     * Test of esDouble method, of class MetodosAux.
-     */
+    
     @Test
     public void testEsDouble() {
-        System.out.println("Test para el método esDouble");
+        assertAll(
+            () -> assertTrue(MetodosAux.esDouble("8"),"El 8 es double"),
+            () -> assertTrue(MetodosAux.esDouble("55"),"El 55 es double"),
+            () -> assertTrue(MetodosAux.esDouble("8.8"),"El 8.8 es double"),
+            () -> assertTrue(MetodosAux.esDouble("-55.5"),"-55.5 NO es double"),
+            () -> assertFalse(MetodosAux.esDouble("HOLA"),"HOLA NO es double"),
+            () -> assertFalse(MetodosAux.esDouble("E"),"E NO es double")
+        );
+    }
+    
+    
+    @Test
+    public void testValidarDNI() {
+        assertAll(
+           () -> assertTrue(MetodosAux.validarDNI("90015161S"), "90015161S DNI válido" ),
+           () -> assertTrue(MetodosAux.validarDNI("90463229C"), "90463229C DNI válido"),
+           () -> assertFalse(MetodosAux.validarDNI("72825528R"),"72825528 NO es DNI válido"),
+           () -> assertFalse(MetodosAux.validarDNI("90463229X"),"90463229X no es DNI válido")
+        );
     }
     
 }
